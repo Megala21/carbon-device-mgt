@@ -125,6 +125,11 @@ $("#policy-name-input").focus(function(){
     validateInline["policy-name"]();
 });
 
+/**
+ * Forward action of device type selection step. Loads relevant policy profile configurations.
+ *
+ * @param actionButton
+ */
 stepForwardFrom["policy-platform"] = function (actionButton) {
     $("#device-type-policy-operations").html("").addClass("hidden");
     $("#generic-policy-operations").addClass("hidden");
@@ -134,58 +139,56 @@ stepForwardFrom["policy-platform"] = function (actionButton) {
     $("#policy-profile-page-wizard-title").text("ADD " + policy["platform"] + " POLICY");
 
     var deviceType = policy["platform"];
-    var policyOperationsTemplateSrc = context + '/public/cdmf.unit.device.type.' + deviceType +
-        '.policy-wizard/templates/' + deviceType + '-policy-operations.hbs';
-    var policyOperationsScriptSrc = context + '/public/cdmf.unit.device.type.' + deviceType +
-        '.policy-wizard/js/' + deviceType + '-policy-operations.js';
-    var policyOperationsStylesSrc = context + '/public/cdmf.unit.device.type.' + deviceType +
-        '.policy-wizard/css/' + deviceType + '-policy-operations.css';
+    var policyOperationsTemplateSrc = $(actionButton).data("template");
+    var policyOperationsScriptSrc = $(actionButton).data("script");
+    var policyOperationsStylesSrc = $(actionButton).data("style");
     var policyOperationsTemplateCacheKey = deviceType + '-policy-operations';
 
-    $.isResourceExists(policyOperationsTemplateSrc, function (status) {
-        if (status) {
-            $.template(policyOperationsTemplateCacheKey, policyOperationsTemplateSrc, function (template) {
-                var content = template();
-                $("#device-type-policy-operations").html(content).removeClass("hidden");
-                $(".policy-platform").addClass("hidden");
-            });
-
-            $.isResourceExists(policyOperationsScriptSrc, function (status) {
-                if (status) {
-                    var script = document.createElement('script');
-                    script.type = 'text/javascript';
-                    script.src = policyOperationsScriptSrc;
-                    $(".wr-advance-operations").prepend(script);
-                }
-            });
-
-            $.isResourceExists(policyOperationsStylesSrc, function (status) {
-                if (status) {
-                    var style = document.createElement('link');
-                    style.type = 'text/css';
-                    style.rel = 'stylesheet';
-                    style.href = policyOperationsStylesSrc;
-                    $(".wr-advance-operations").prepend(style);
-                }
-            });
-        } else {
-            $("#generic-policy-operations").removeClass("hidden");
-        }
-        $(".wr-advance-operations-init").addClass("hidden");
-    });
+    if (policyOperationsTemplateSrc) {
+        $.template(policyOperationsTemplateCacheKey, context + policyOperationsTemplateSrc, function (template) {
+            var content = template();
+            $("#device-type-policy-operations").html(content).removeClass("hidden");
+            $(".policy-platform").addClass("hidden");
+        });
+    } else {
+        $("#generic-policy-operations").removeClass("hidden");
+    }
+    if (policyOperationsScriptSrc) {
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = context + policyOperationsScriptSrc;
+        $(".wr-advance-operations").prepend(script);
+    }
+    if (policyOperationsStylesSrc) {
+        var style = document.createElement('link');
+        style.type = 'text/css';
+        style.rel = 'stylesheet';
+        style.href = context + policyOperationsStylesSrc;
+        $(".wr-advance-operations").prepend(style);
+    }
+    $(".wr-advance-operations-init").addClass("hidden");
 };
 
+/**
+ * Forward action of policy profile page. Generates policy profile payload.
+ */
 stepForwardFrom["policy-profile"] = function () {
     policy["profile"] = operationModule.generateProfile(policy["platform"], configuredOperations);
     // updating next-page wizard title with selected platform
     $("#policy-criteria-page-wizard-title").text("ADD " + policy["platform"] + " POLICY");
 };
 
+/**
+ * Backward action of policy profile page. Moves back to platform selection step.
+ */
 stepBackFrom["policy-profile"] = function () {
     // reinitialize configuredOperations
     configuredOperations = [];
 };
 
+/**
+ * Forward action of policy criteria page.
+ */
 stepForwardFrom["policy-criteria"] = function () {
     $("input[type='radio'].select-users-radio").each(function () {
         if ($(this).is(':radio')) {
@@ -223,6 +226,11 @@ var inputIsValidAgainstLength = function (input, minLength, maxLength) {
     return (length == minLength || (length > minLength && length < maxLength) || length == maxLength);
 };
 
+/**
+ * Validates policy criteria inputs.
+ *
+ * @returns {boolean} whether the validation is successful.
+ */
 validateStep["policy-criteria"] = function () {
     var validationStatus = {};
     var selectedAssignees;
@@ -261,6 +269,11 @@ validateStep["policy-criteria"] = function () {
     return wizardIsToBeContinued;
 };
 
+/**
+ * Validating policy naming.
+ *
+ * @returns {boolean} whether the validation is successful.
+ */
 validateStep["policy-naming"] = function () {
     var validationStatus = {};
 
@@ -390,7 +403,7 @@ var savePolicy = function (policy, isActive, serviceURL) {
         payload["roles"] = [];
     }
 
-    if(policy["selectedGroups"]) {
+    if(policy["selectedGroups"] && policy["selectedGroups"][0] !== "NONE") {
         payload["deviceGroups"] = policy["selectedGroups"];
     }
 
