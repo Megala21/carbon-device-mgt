@@ -262,7 +262,7 @@ public class UserManagementServiceImpl implements UserManagementService {
         try {
             roleListOfUser = userStoreManager.getRoleListOfUser(username);
         } catch (UserStoreException e) {
-            e.printStackTrace();
+            log.error("Error while getting list of user " + username, e);
         }
         List<String> filteredRoles = new ArrayList<>();
         for (String role : roleListOfUser) {
