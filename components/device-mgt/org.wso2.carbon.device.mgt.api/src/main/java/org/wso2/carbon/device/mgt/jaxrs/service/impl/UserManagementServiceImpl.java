@@ -258,13 +258,10 @@ public class UserManagementServiceImpl implements UserManagementService {
         }
     }
 
-    private List<String> getFilteredRoles(UserStoreManager userStoreManager, String username) {
+    private List<String> getFilteredRoles(UserStoreManager userStoreManager, String username)
+            throws UserStoreException {
         String[] roleListOfUser = new String[0];
-        try {
-            roleListOfUser = userStoreManager.getRoleListOfUser(username);
-        } catch (UserStoreException e) {
-            e.printStackTrace();
-        }
+        roleListOfUser = userStoreManager.getRoleListOfUser(username);
         List<String> filteredRoles = new ArrayList<>();
         for (String role : roleListOfUser) {
             if (!(role.startsWith("Internal/") || role.startsWith("Authentication/"))) {
