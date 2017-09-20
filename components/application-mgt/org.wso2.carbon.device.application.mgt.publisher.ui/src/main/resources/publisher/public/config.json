@@ -2,5 +2,6 @@
   "theme": {
     "type": "default",
     "value": "lightBaseTheme"
-  }
+  },
+  "i18n" : ["en", "tn"]
 }

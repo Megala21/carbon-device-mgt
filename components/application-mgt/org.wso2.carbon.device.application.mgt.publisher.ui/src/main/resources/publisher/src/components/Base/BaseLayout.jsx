@@ -35,7 +35,10 @@ import Feedback from 'material-ui/svg-icons/action/feedback';
 import DevicesOther from 'material-ui/svg-icons/hardware/devices-other';
 import NotificationsIcon from 'material-ui/svg-icons/social/notifications';
 import ActionAccountCircle from 'material-ui/svg-icons/action/account-circle';
-
+import T from 'i18n-react';
+import Locale from '../../locale';
+import LocalizedStrings from 'react-localization';
+import axios from 'axios';
 
 /**
  * Base Layout:
@@ -49,10 +52,12 @@ class BaseLayout extends Component {
         super();
         this.state = {
             notifications: 0,
-            user: 'Admin'
+            user: 'Admin',
+            locale : ""
         };
         this.scriptId = "basic-layout";
         this.logout = this.logout.bind(this);
+        this.updateLocales = this.updateLocales.bind(this);
     }
 
     componentWillMount() {
@@ -60,6 +65,47 @@ class BaseLayout extends Component {
          *Loading the theme files based on the the user-preference.
          */
         Theme.insertThemingScripts(this.scriptId);
+
+        this.updateLocales();
+
+    }
+
+    updateLocales() {
+        let config = Locale.loadConfigs();
+        let strings;
+        let localeJsons = {};
+
+        config.then(data => {
+            let mainObject = {},
+                promises = [];
+
+            data.data.i18n.forEach(function (singleElement) {
+                promises.push(axios.get("https://localhost:9443/publisher/locales/" + singleElement + ".json",{
+                    params: {
+                        value: singleElement
+                    }
+                }))
+            });
+
+            axios.all(promises).then(results => {
+                results.forEach(function (response) {
+                    localeJsons[response.config.params.value] = response.data;
+                });
+                strings = new LocalizedStrings(localeJsons);
+                strings.setLanguage(strings.getInterfaceLanguage());
+                Locale.strings = strings;
+                this.setState({
+                    locale: strings
+                })
+            });
+
+        }).catch(error => {
+            console.log(error);
+        });
+    }
+
+    componentDidMount() {
+
     }
 
     componentWillUnmount() {
@@ -107,7 +153,7 @@ class BaseLayout extends Component {
 
             <div>
                 <AppBar
-                    title="App Publisher"
+                    title={this.state.locale.how}
                     iconElementRight={
                         <div>
                             <Badge
