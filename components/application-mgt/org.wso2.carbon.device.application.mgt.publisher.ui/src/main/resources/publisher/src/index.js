@@ -21,9 +21,38 @@ import React from 'react';
 import Publisher from './App';
 import ReactDOM from 'react-dom';
 import registerServiceWorker from './registerServiceWorker';
+import {IntlProvider, addLocaleData, defineMessages} from 'react-intl';
+import axios from 'axios';
+
+const possibleLocale = "tn";
+addLocaleData(require('react-intl/locale-data/' + possibleLocale));
+
+
+let httpClient = axios.create({
+    baseURL: "https://localhost:9443/publisher/locales" + possibleLocale + ".json"
+});
+
+let promisedConfig = httpClient.get();
+
+promisedConfig.then(response => {
+    const messages = defineMessages(response.data);
+    ReactDOM.render(<IntlProvider locale={possibleLocale} messages = {messages}><Publisher/></IntlProvider>, document.getElementById('root'));
+    registerServiceWorker();
+}).catch(error => {
+    let httpClient2 = axios.create({
+        baseURL: "https://localhost:9443/publisher/locales/en.json"
+    });
+    let defaultLocale = httpClient2.get();
+    defaultLocale.then(response => {
+        const messages = defineMessages(response.data);
+        ReactDOM.render(<IntlProvider locale={possibleLocale} messages = {messages}><Publisher/></IntlProvider>, document.getElementById('root'));
+        registerServiceWorker();
+    }).catch(error =>{});
+
+});
+
 
 /**
  * This is the base js file of the app. All the content will be rendered in the root element.
  * */
-ReactDOM.render(<Publisher/>, document.getElementById('root'));
-registerServiceWorker();
+

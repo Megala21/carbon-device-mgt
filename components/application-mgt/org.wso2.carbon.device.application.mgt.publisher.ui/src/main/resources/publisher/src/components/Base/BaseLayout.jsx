@@ -35,8 +35,20 @@ import Feedback from 'material-ui/svg-icons/action/feedback';
 import DevicesOther from 'material-ui/svg-icons/hardware/devices-other';
 import NotificationsIcon from 'material-ui/svg-icons/social/notifications';
 import ActionAccountCircle from 'material-ui/svg-icons/action/account-circle';
+import {
+    injectIntl,
+    IntlProvider,
+    FormattedRelative,
+} from 'react-intl';
+import {addLocaleData} from 'react-intl';
+import en from 'react-intl/locale-data/en';
+import fr from 'react-intl/locale-data/fr';
+import es from 'react-intl/locale-data/es';
 
 
+addLocaleData(fr);
+const hasICU = typeof Intl === 'object';
+console.log(hasICU);
 /**
  * Base Layout:
  * App bar
@@ -45,11 +57,14 @@ import ActionAccountCircle from 'material-ui/svg-icons/action/account-circle';
  * */
 class BaseLayout extends Component {
 
+
     constructor() {
         super();
         this.state = {
             notifications: 0,
-            user: 'Admin'
+            user: 'Admin',
+            name       : 'Eric',
+            unreadCount: 1000
         };
         this.scriptId = "basic-layout";
         this.logout = this.logout.bind(this);
@@ -103,41 +118,46 @@ class BaseLayout extends Component {
     }
 
     render() {
+        const PostDate = injectIntl(({date, intl}) => (
+
+            <AppBar title={intl.formatMessage({id : date})}
+        iconElementRight={
+        <div>
+            <Badge
+                badgeContent={this.state.notifications}
+                secondary={true}
+                badgeStyle={{top: 12, right: 12}}
+            >
+                <IconButton tooltip="Notifications">
+                    <NotificationsIcon/>
+                </IconButton>
+            </Badge>
+            <IconMenu
+                iconButtonElement={<FlatButton
+                    icon={<ActionAccountCircle/>}
+                    label="sdfdsf"
+                />}
+                anchorOrigin={{horizontal: 'left', vertical: 'top'}}
+                targetOrigin={{horizontal: 'left', vertical: 'top'}}
+                onChange={this.logout}
+            >
+                <MenuItem value={0} primaryText="Logout" />
+            </IconMenu>
+            {/*<FlatButton*/}
+            {/*icon={<ActionAccountCircle/>}*/}
+            {/*onClick={() => {console.log("Clicked")}}*/}
+            {/*label={this.props.user.getUserName()}*/}
+            {/*/>*/}
+        </div>
+    }
+            >
+                <FormattedRelative value={date}/>
+            </AppBar>
+        ));
         return (
 
             <div>
-                <AppBar
-                    title="App Publisher"
-                    iconElementRight={
-                        <div>
-                            <Badge
-                                badgeContent={this.state.notifications}
-                                secondary={true}
-                                badgeStyle={{top: 12, right: 12}}
-                            >
-                                <IconButton tooltip="Notifications">
-                                    <NotificationsIcon/>
-                                </IconButton>
-                            </Badge>
-                            <IconMenu
-                                iconButtonElement={<FlatButton
-                                    icon={<ActionAccountCircle/>}
-                                    label="sdfdsf"
-                                />}
-                                anchorOrigin={{horizontal: 'left', vertical: 'top'}}
-                                targetOrigin={{horizontal: 'left', vertical: 'top'}}
-                                onChange={this.logout}
-                            >
-                                <MenuItem value={0} primaryText="Logout" />
-                            </IconMenu>
-                            {/*<FlatButton*/}
-                                {/*icon={<ActionAccountCircle/>}*/}
-                                {/*onClick={() => {console.log("Clicked")}}*/}
-                                {/*label={this.props.user.getUserName()}*/}
-                            {/*/>*/}
-                        </div>
-                    }
-                />
+                <PostDate date="hello"/>
                 <div>
                     <Drawer containerStyle={{height: 'calc(100% - 64px)', width: '15%', top: '10%'}} open={true}>
                         <List>
