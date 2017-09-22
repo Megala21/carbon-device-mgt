@@ -153,11 +153,6 @@ class Publisher extends Component {
             this.setState({
                 muiTheme : getMuiTheme(defaultTheme.default)
             });
-        } else {
-            let customTheme = require("./themes/" + this.state.selectedTheme);
-            this.setState({
-                muiTheme : getMuiTheme(customTheme.default)
-            });
         }
 
     }

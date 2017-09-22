@@ -16,8 +16,6 @@
  * under the License.
  */
 
-import qs from 'qs';
-import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import Checkbox from 'material-ui/Checkbox';
 import TextField from 'material-ui/TextField';
@@ -53,14 +51,6 @@ class Login extends Component {
 
     componentDidMount() {
         console.log("in Login")
-        // let queryString = this.props.location.search;
-        // console.log(queryString);
-        // queryString = queryString.replace(/^\?/, '');
-        // /* With QS version up we can directly use {ignoreQueryPrefix: true} option */
-        // let params = qs.parse(queryString);
-        // if (params.referrer) {
-        //     this.setState({referrer: params.referrer});
-        // }
     }
 
     handleLogin(event) {

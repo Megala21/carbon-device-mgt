@@ -21,9 +21,30 @@ import React from 'react';
 import Publisher from './App';
 import ReactDOM from 'react-dom';
 import registerServiceWorker from './registerServiceWorker';
+import {IntlProvider, defineMessages} from 'react-intl';
+import httpClient from './httpClient';
 
-/**
- * This is the base js file of the app. All the content will be rendered in the root element.
- * */
-ReactDOM.render(<Publisher/>, document.getElementById('root'));
-registerServiceWorker();
+const defaultLocale = "en";
+const possibleLocale = navigator.language || defaultLocale;
+const localesDirectory = "locales";
+let promisedLocaleFile = httpClient.makeGetRequest(localesDirectory + "/" + possibleLocale + ".json");
+
+promisedLocaleFile.then(response => {
+    const messages = defineMessages(response.data);
+    ReactDOM.render(<IntlProvider locale={possibleLocale} messages = {messages}><Publisher/></IntlProvider>,
+        document.getElementById('root'));
+    registerServiceWorker();
+}).catch(error => {
+    console.log(error);
+    let promisedDefaultLocaleFile = httpClient.makeGetRequest(localesDirectory + "/" + defaultLocale + ".json");
+    promisedDefaultLocaleFile.then(response => {
+        const messages = defineMessages(response.data);
+        ReactDOM.render(<IntlProvider locale={defaultLocale} messages = {messages}><Publisher/></IntlProvider>,
+            document.getElementById('root'));
+        registerServiceWorker();
+    }).catch(error =>{
+        console.log(error);
+        console.error("Default locale file does not exist in the server. Please contact the server administrator");
+    });
+});
+

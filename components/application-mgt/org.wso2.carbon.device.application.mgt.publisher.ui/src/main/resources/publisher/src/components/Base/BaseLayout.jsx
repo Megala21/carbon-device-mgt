@@ -35,7 +35,10 @@ import Feedback from 'material-ui/svg-icons/action/feedback';
 import DevicesOther from 'material-ui/svg-icons/hardware/devices-other';
 import NotificationsIcon from 'material-ui/svg-icons/social/notifications';
 import ActionAccountCircle from 'material-ui/svg-icons/action/account-circle';
-
+import {
+    injectIntl,
+    FormattedRelative,
+} from 'react-intl';
 
 /**
  * Base Layout:
@@ -103,79 +106,82 @@ class BaseLayout extends Component {
     }
 
     render() {
+        const InternationalizedAppBar = injectIntl(({publisherTitle, notification, logoutMessage, intl}) => (
+            <AppBar title={intl.formatMessage({id : publisherTitle})}
+                iconElementRight={
+                    <div>
+                        <Badge badgeContent={this.state.notifications} secondary={true}
+                               badgeStyle={{top: 12, right: 12}}>
+                            <IconButton tooltip={intl.formatMessage({id : notification})}>
+                                <NotificationsIcon/>
+                            </IconButton>
+                        </Badge>
+                        <IconMenu
+                            iconButtonElement={<FlatButton icon={<ActionAccountCircle/>} label="admin"/>}
+                            anchorOrigin={{horizontal: 'left', vertical: 'top'}}
+                            targetOrigin={{horizontal: 'left', vertical: 'top'}}
+                            onChange={this.logout}>
+                            <MenuItem value={0} primaryText={intl.formatMessage({id : logoutMessage})} />
+                        </IconMenu>
+                    </div>
+                }/>
+        ));
+
+        const InternationalizedApplicationListItem = injectIntl(({parentPrimaryText,nestedPrimaryText, intl}) => (
+            <ListItem
+                primaryText={intl.formatMessage({id : parentPrimaryText})}
+                leftIcon={<Apps/>}
+                initiallyOpen={false}
+                primaryTogglesNestedList={true}
+                onClick={this.handleApplicationClick.bind(this)}
+                nestedItems={[
+                    <ListItem
+                        key={1}
+                        primaryText={intl.formatMessage({id : nestedPrimaryText})}
+                        onClick={this.handleApplicationCreateClick.bind(this)}
+                        leftIcon={<Add/>}
+                    />
+                ]}
+            />
+        ));
+
+        const InternationalizedPlatformListItem = injectIntl(({parentPrimaryText,nestedPrimaryText, intl}) => (
+            <ListItem
+                primaryText={intl.formatMessage({id : parentPrimaryText})}
+                leftIcon={<DevicesOther/>}
+                initiallyOpen={false}
+                primaryTogglesNestedList={true}
+                onClick={this.handlePlatformClick.bind(this)}
+                nestedItems={[
+                    <ListItem
+                        key={1}
+                        primaryText={intl.formatMessage({id : nestedPrimaryText})}
+                        onClick={this.handlePlatformCreateClick.bind(this)}
+                        leftIcon={<Add/>}
+                    />
+                ]}
+            />
+        ));
+
+        const InternationalizedReviewListItem = injectIntl(({parentPrimaryText,intl}) => (
+            <ListItem
+                primaryText={intl.formatMessage({id : parentPrimaryText})}
+                onClick={this.handleReviewClick.bind(this)}
+                leftIcon={<Feedback/>}
+            />
+        ));
+
         return (
 
             <div>
-                <AppBar
-                    title="App Publisher"
-                    iconElementRight={
-                        <div>
-                            <Badge
-                                badgeContent={this.state.notifications}
-                                secondary={true}
-                                badgeStyle={{top: 12, right: 12}}
-                            >
-                                <IconButton tooltip="Notifications">
-                                    <NotificationsIcon/>
-                                </IconButton>
-                            </Badge>
-                            <IconMenu
-                                iconButtonElement={<FlatButton
-                                    icon={<ActionAccountCircle/>}
-                                    label="sdfdsf"
-                                />}
-                                anchorOrigin={{horizontal: 'left', vertical: 'top'}}
-                                targetOrigin={{horizontal: 'left', vertical: 'top'}}
-                                onChange={this.logout}
-                            >
-                                <MenuItem value={0} primaryText="Logout" />
-                            </IconMenu>
-                            {/*<FlatButton*/}
-                                {/*icon={<ActionAccountCircle/>}*/}
-                                {/*onClick={() => {console.log("Clicked")}}*/}
-                                {/*label={this.props.user.getUserName()}*/}
-                            {/*/>*/}
-                        </div>
-                    }
-                />
+                <InternationalizedAppBar publisherTitle = "App.Publisher" notification = "notification"
+                                         logoutMessage = "logout"/>
                 <div>
                     <Drawer containerStyle={{height: 'calc(100% - 64px)', width: '15%', top: '10%'}} open={true}>
                         <List>
-                            <ListItem
-                                primaryText="Applications"
-                                leftIcon={<Apps/>}
-                                initiallyOpen={false}
-                                primaryTogglesNestedList={true}
-                                onClick={this.handleApplicationClick.bind(this)}
-                                nestedItems={[
-                                    <ListItem
-                                        key={1}
-                                        primaryText="Create"
-                                        onClick={this.handleApplicationCreateClick.bind(this)}
-                                        leftIcon={<Add/>}
-                                    />
-                                ]}
-                            />
-                            <ListItem
-                                primaryText="Platforms"
-                                leftIcon={<DevicesOther/>}
-                                initiallyOpen={false}
-                                primaryTogglesNestedList={true}
-                                onClick={this.handlePlatformClick.bind(this)}
-                                nestedItems={[
-                                    <ListItem
-                                        key={1}
-                                        primaryText="Create"
-                                        onClick={this.handlePlatformCreateClick.bind(this)}
-                                        leftIcon={<Add/>}
-                                    />
-                                ]}
-                            />
-                            <ListItem
-                                primaryText="Reviews"
-                                onClick={this.handleReviewClick.bind(this)}
-                                leftIcon={<Feedback/>}
-                            />
+                          <InternationalizedApplicationListItem parentPrimaryText = "Applications" nestedPrimaryText = "Create"/>
+                          <InternationalizedPlatformListItem parentPrimaryText = "Platforms" nestedPrimaryText = "Create" />
+                          <InternationalizedReviewListItem parentPrimaryText = "Reviews"/>
                         </List>
                     </Drawer>
                 </div>
