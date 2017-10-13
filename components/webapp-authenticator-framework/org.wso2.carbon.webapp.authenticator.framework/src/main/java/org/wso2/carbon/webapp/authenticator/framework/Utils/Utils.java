@@ -60,6 +60,7 @@ public class Utils {
 
     public static String getTenantDomain(int tenantId) throws AuthenticationException {
         try {
+            System.out.print("test");
             PrivilegedCarbonContext.startTenantFlow();
             RealmService realmService = AuthenticatorFrameworkDataHolder.getInstance().getRealmService();
             if (realmService == null) {
